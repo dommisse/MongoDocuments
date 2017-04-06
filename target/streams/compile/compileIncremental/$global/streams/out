@@ -1,0 +1,62 @@
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mInitial source changes: [0m
+[0m[[0mdebug[0m] [0m	removed:Set()[0m
+[0m[[0mdebug[0m] [0m	added: Set(/home/dev/projects/DocMan/src/main/scala/com/allangray/documents/Main.scala)[0m
+[0m[[0mdebug[0m] [0m	modified: Set()[0m
+[0m[[0mdebug[0m] [0mRemoved products: Set()[0m
+[0m[[0mdebug[0m] [0mExternal API changes: API Changes: Set()[0m
+[0m[[0mdebug[0m] [0mModified binary dependencies: Set()[0m
+[0m[[0mdebug[0m] [0mInitial directly invalidated sources: Set(/home/dev/projects/DocMan/src/main/scala/com/allangray/documents/Main.scala)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mSources indirectly invalidated by:[0m
+[0m[[0mdebug[0m] [0m	product: Set()[0m
+[0m[[0mdebug[0m] [0m	binary dep: Set()[0m
+[0m[[0mdebug[0m] [0m	external source: Set()[0m
+[0m[[0mdebug[0m] [0mAll initially invalidated sources: Set(/home/dev/projects/DocMan/src/main/scala/com/allangray/documents/Main.scala)[0m
+[0m[[0mdebug[0m] [0mRecompiling all 1 sources: invalidated sources (1) exceeded 50.0% of all sources[0m
+[0m[[0minfo[0m] [0mCompiling 1 Scala source to /home/dev/projects/DocMan/target/scala-2.12/classes...[0m
+[0m[[0mdebug[0m] [0mGetting compiler-interface from component compiler for Scala 2.12.1[0m
+[0m[[0mdebug[0m] [0mPlain interface to Scala compiler 2.12.1  with arguments: [0m
+[0m[[0mdebug[0m] [0m	-nowarn[0m
+[0m[[0mdebug[0m] [0m	-d[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_6e05fce2[0m
+[0m[[0mdebug[0m] [0m	-bootclasspath[0m
+[0m[[0mdebug[0m] [0m	/usr/lib/jvm/java-8-oracle/jre/lib/resources.jar:/usr/lib/jvm/java-8-oracle/jre/lib/rt.jar:/usr/lib/jvm/java-8-oracle/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-8-oracle/jre/lib/jsse.jar:/usr/lib/jvm/java-8-oracle/jre/lib/jce.jar:/usr/lib/jvm/java-8-oracle/jre/lib/charsets.jar:/usr/lib/jvm/java-8-oracle/jre/lib/jfr.jar:/usr/lib/jvm/java-8-oracle/jre/classes:/home/dev/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.12.1.jar[0m
+[0m[[0mdebug[0m] [0m	-classpath[0m
+[0m[[0mdebug[0m] [0m	/home/dev/.sbt/boot/scala-2.10.4/org.scala-sbt/sbt/0.13.8/xsbti/interface-0.13.8.jar:/home/dev/.sbt/boot/scala-2.10.4/org.scala-sbt/sbt/0.13.8/compiler-interface-src/compiler-interface-src-0.13.8.jar:/home/dev/.ivy2/cache/org.scala-lang/scala-compiler/jars/scala-compiler-2.12.1.jar:/home/dev/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.12.1.jar:/home/dev/.ivy2/cache/org.scala-lang.modules/scala-xml_2.12/bundles/scala-xml_2.12-1.0.6.jar:/home/dev/.ivy2/cache/jline/jline/jars/jline-2.14.1.jar[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_48bc95f7/xsbt/API.scala[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_48bc95f7/xsbt/Analyzer.scala[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_48bc95f7/xsbt/Command.scala[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_48bc95f7/xsbt/Compat.scala[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_48bc95f7/xsbt/CompilerInterface.scala[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_48bc95f7/xsbt/ConsoleInterface.scala[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_48bc95f7/xsbt/DelegatingReporter.scala[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_48bc95f7/xsbt/Dependency.scala[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_48bc95f7/xsbt/ExtractAPI.scala[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_48bc95f7/xsbt/ExtractUsedNames.scala[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_48bc95f7/xsbt/LocateClassFile.scala[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_48bc95f7/xsbt/Log.scala[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_48bc95f7/xsbt/Message.scala[0m
+[0m[[0mdebug[0m] [0m	/tmp/sbt_48bc95f7/xsbt/ScaladocInterface.scala[0m
+[0m[[0mdebug[0m] [0mGetting compiler-interface from component compiler for Scala 2.12.1[0m
+[0m[[0mdebug[0m] [0mRunning cached compiler ca7a15c, interfacing (CompilerInterface) with Scala compiler version 2.12.1[0m
+[0m[[0mdebug[0m] [0mCalling Scala compiler with arguments  (CompilerInterface):[0m
+[0m[[0mdebug[0m] [0m	-bootclasspath[0m
+[0m[[0mdebug[0m] [0m	/usr/lib/jvm/java-8-oracle/jre/lib/resources.jar:/usr/lib/jvm/java-8-oracle/jre/lib/rt.jar:/usr/lib/jvm/java-8-oracle/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-8-oracle/jre/lib/jsse.jar:/usr/lib/jvm/java-8-oracle/jre/lib/jce.jar:/usr/lib/jvm/java-8-oracle/jre/lib/charsets.jar:/usr/lib/jvm/java-8-oracle/jre/lib/jfr.jar:/usr/lib/jvm/java-8-oracle/jre/classes:/home/dev/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.12.1.jar[0m
+[0m[[0mdebug[0m] [0m	-classpath[0m
+[0m[[0mdebug[0m] [0m	/home/dev/projects/DocMan/target/scala-2.12/classes:/home/dev/.ivy2/cache/org.mongodb.scala/mongo-scala-driver_2.12/jars/mongo-scala-driver_2.12-1.2.1.jar:/home/dev/.ivy2/cache/org.mongodb.scala/mongo-scala-bson_2.12/jars/mongo-scala-bson_2.12-1.2.1.jar:/home/dev/.ivy2/cache/org.mongodb/mongodb-driver-async/jars/mongodb-driver-async-3.4.0.jar:/home/dev/.ivy2/cache/org.mongodb/mongodb-driver-core/jars/mongodb-driver-core-3.4.0.jar:/home/dev/.ivy2/cache/org.mongodb/bson/jars/bson-3.4.0.jar[0m
+[0m[[31merror[0m] [0m/home/dev/projects/DocMan/src/main/scala/com/allangray/documents/Main.scala:6: not found: type MongoClient[0m
+[0m[[31merror[0m] [0m      val mongoClient: MongoClient = MongoClient()[0m
+[0m[[31merror[0m] [0m                       ^[0m
+[0m[[31merror[0m] [0m/home/dev/projects/DocMan/src/main/scala/com/allangray/documents/Main.scala:6: not found: value MongoClient[0m
+[0m[[31merror[0m] [0m      val mongoClient: MongoClient = MongoClient()[0m
+[0m[[31merror[0m] [0m                                     ^[0m
+[0m[[31merror[0m] [0m/home/dev/projects/DocMan/src/main/scala/com/allangray/documents/Main.scala:7: not found: type MongoDatabase[0m
+[0m[[31merror[0m] [0m      val database: MongoDatabase = mongoClient.getDatabase("mydb")[0m
+[0m[[31merror[0m] [0m                    ^[0m
+[0m[[31merror[0m] [0m/home/dev/projects/DocMan/src/main/scala/com/allangray/documents/Main.scala:8: not found: type MongoCollection[0m
+[0m[[31merror[0m] [0m      val collection: MongoCollection[Document] = database.getCollection("users")[0m
+[0m[[31merror[0m] [0m                      ^[0m
+[0m[[31merror[0m] [0mfour errors found[0m
+[0m[[0mdebug[0m] [0mCompilation failed (CompilerInterface)[0m
+[0m[[31merror[0m] [0m(compile:[31mcompileIncremental[0m) Compilation failed[0m
