@@ -4,7 +4,7 @@
 		module="docman$sources_2.12"
 		revision="1.0"
 		status="integration"
-		publication="20170508074633"
+		publication="20170509203432"
 	/>
 	<configurations>
 		<conf name="compile" visibility="public" description=""/>

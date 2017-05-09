@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalaSbtSettings">
-    <option name="customLauncherEnabled" value="true" />
-    <option name="customLauncherPath" value="/opt/sbt/bin/sbt-launch.jar" />
     <option name="linkedExternalProjectsSettings">
       <SbtProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -17,6 +15,5 @@
       </SbtProjectSettings>
     </option>
     <option name="maximumHeapSize" value="2048" />
-    <option name="vmParameters" value="-Dgit.branch=develop" />
   </component>
 </project>
