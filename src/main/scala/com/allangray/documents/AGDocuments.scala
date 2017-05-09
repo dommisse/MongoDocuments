@@ -25,13 +25,13 @@ case class AGDocuments(name: String, documentType:String) extends Documents {
 
   override def retrieveDocument(searchString: String): Document = ???
 
-  private def writeGridFS(database: MongoDatabase) = {
+  private def writeGridFS(database: MongoDatabase,bucketName:String,fileName:String,filePath:String) = {
 
     // Create a gridFSBucket with a custom bucket name "files"
-    val customFSBucket: GridFSBucket = GridFSBucket(database, "DocStore")
+    val customFSBucket: GridFSBucket = GridFSBucket(database, bucketName)
 
     // Get the input stream
-    val inputPath: Path = Paths.get("/home/dev/temp/test.txt")
+    val inputPath: Path = Paths.get(filePath + "/" + fileName)
 
     val fileToRead: AsynchronousFileChannel = AsynchronousFileChannel.open(inputPath, StandardOpenOption.READ)
     val streamToUploadFrom: AsyncInputStream = AsynchronousChannelHelper.channelToInputStream(fileToRead) // Using the AsynchronousChannelHelper
