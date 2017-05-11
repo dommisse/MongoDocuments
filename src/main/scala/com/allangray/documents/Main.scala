@@ -20,25 +20,27 @@ object Main {
       println("****************STARTED***********************")
       val mongoClient: MongoClient = MongoClient("mongodb://localhost:27017")
       val database: MongoDatabase = mongoClient.getDatabase("mydb")
-      val collection: MongoCollection[Document] = database.getCollection("movies")
-
-      // insert a document
-      val document: Document = Document("_id" -> 2, "x" -> 4)
-      val doc2: Document = Document("_id" -> 4, "firstName" -> "Rory", "lastName" -> "Bolus")
-      //writeSomething(collection, doc2)
-      //readRecords(collection, Some(document))
-      //val latch: CountDownLatch = new CountDownLatch(1)
-      //latch.await()
-      //mongoClient.close()
-
-      writeGridFS(database)
-
-      //readGridFS(database)
-
-      val latch: CountDownLatch = new CountDownLatch(2)
-      latch.await()
-
-      mongoClient.close()
+      val collection: MongoCollection[Document] = database.getCollection("files")
+//
+//      // insert a document
+//      val document: Document = Document("_id" -> 2, "x" -> 4)
+//      val doc2: Document = Document("_id" -> 4, "firstName" -> "Rory", "lastName" -> "Bolus")
+//      //writeSomething(collection, doc2)
+//      //readRecords(collection, Some(document))
+//      //val latch: CountDownLatch = new CountDownLatch(1)
+//      //latch.await()
+//      //mongoClient.close()
+//
+//      writeGridFS(database)
+//
+//      //readGridFS(database)
+//
+//      val latch: CountDownLatch = new CountDownLatch(2)
+//      latch.await()
+//
+//      mongoClient.close()
+      val agDocs = AGDocuments(database,"files")
+      agDocs.writeFolder("/media/sf_vboxsf/")
 
     } catch {
       case e: Exception => println(e.toString())
