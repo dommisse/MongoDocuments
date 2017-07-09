@@ -5,9 +5,13 @@ import java.nio.file.{Path, Paths, StandardOpenOption}
 
 import com.mongodb.client.gridfs.model.GridFSUploadOptions
 import org.mongodb.scala._
-import org.mongodb.scala.bson.{Document => _, _}
+import java.time.LocalDate
+
+import org.bson.BsonValue
+import org.mongodb.scala.bson.ObjectId
 import org.mongodb.scala.gridfs.helpers.AsynchronousChannelHelper
 import org.mongodb.scala.gridfs._
+import org.mongodb.scala.model.Filters
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -16,20 +20,94 @@ import scala.concurrent.duration._
 case class ErrorResult(errCode: String, errReason : String)
 
 trait Documents {
-  def loadDocument(fileName:String, filePath: String) : ErrorResult
-  def retrieveDocument(searchString: String) : Document
+  def saveDocument(fileName:String, filePath: String) : ErrorResult
+  //def searchDocuments(searchString: String) : Seq[DocumentMetaData]
+  //def getDocument(documentId: String) : Document
 }
 
-case class AGDocuments(name: String, documentType:String) extends Documents {
-  override def loadDocument(fileName: String, filePath: String): ErrorResult = ???
+case class AGDocuments(database:MongoDatabase) extends Documents {
+  override def saveDocument(fileName: String, filePath: String): ErrorResult = ???
 
-  override def retrieveDocument(searchString: String): Document = ???
+   def searchDocuments(searchString: String) = {
 
-  private def writeGridFS(database: MongoDatabase,bucketName:String,fileName:String,filePath:String) = {
+    val customFSBucket: GridFSBucket = GridFSBucket(database, "DocStore")
 
-    // Create a gridFSBucket with a custom bucket name "files"
+    println("File names:")
+    //val docToFind = Document("id" -> "58cbb057fa58955608f97e3f")
+    //val findResult = customFSBucket.find(Filters.equal("_id", "58e3666ba045686607752b08"))
+    //val findResult = customFSBucket.find(Filters.equal("_id" , "58e3869af5f0396b876c1868" ))
+
+
+    //val findResult = customFSBucket.find(Filters.equal("metadata.contactID", "1-22345"))
+    //collection.find(and(gte("stars", 2), lt("stars", 5), eq("categories", "Bakery")))
+    val findResult = customFSBucket.find(org.mongodb.scala.model.Filters.and(Filters.equal("metadata.contactID", "1-22345"),
+      Filters.gte("length", 1)))
+    //gte("lenght",1)))
+
+    //val findResult = customFSBucket.find(Filters.equal("filename" , "/home/dev/temp/test.txt" ))
+    //db.fs.files.find({"filename" : "/home/dev/temp/test.pdf" }
+
+    findResult.subscribe(
+      (files: GridFSFile) => {
+        println("files found...")
+        //println(files.getFilename, " : " + files.getId + " : " + files.getMetadata + " : " + files.hashCode()) + " :  " + files.getObjectId
+        buildMetaResults(files)
+      },
+      (t: Throwable) => println("Failed with " + t.toString),
+      () => println("Done reading")
+    )
+    Await.result(findResult.toFuture(), 2.seconds)
+
+    def buildMetaResults(files: GridFSFile):DocumentMetaData = {
+      DocumentMetaData(files.getId,files.getFilename,files.getMetadata,(files.getUploadDate))
+    }
+  }
+
+   def getDocument(documentId: String) = {
+
+    val customFSBucket: GridFSBucket = GridFSBucket(database, "DocStore")
+
+     val findResult = customFSBucket.find(Filters.equal("_id" , new ObjectId(documentId)))
+
+    findResult.subscribe(
+      (files: GridFSFile) => {
+        println("files found...")
+        println(files.getFilename, " : " + files.getId + " : " + files.getMetadata + " : " + files.hashCode()) + " :  " + files.getObjectId
+        outputResults(files.getId,files.hashCode().toString)
+      },
+      (t: Throwable) => println("Failed with " + t.toString),
+      () => println("Done reading")
+    )
+    Await.result(findResult.toFuture(), 2.seconds)
+
+    def outputResults(fileId: BsonValue, hash: String): Unit = {
+      val outputPath: Path = Paths.get("/home/dev/temp/mongodb-tutorial" + hash + ".jpg")
+
+
+      var streamToDownloadTo: AsynchronousFileChannel = AsynchronousFileChannel.open(outputPath,
+        StandardOpenOption.CREATE,
+        StandardOpenOption.WRITE
+        //,StandardOpenOption.DELETE_ON_CLOSE
+      )
+
+      val trackMe = customFSBucket.downloadToStream(fileId, AsynchronousChannelHelper.channelToOutputStream(streamToDownloadTo))
+
+      trackMe.subscribe(
+        (x: Long) => println("OnNext: " + x),
+        (t: Throwable) => println("Failed: " + t.toString),
+        () => {
+          println("Complete")
+          streamToDownloadTo.close()
+        }
+      )
+
+      Await.result(trackMe.toFuture(), 2.seconds)
+
+    }
+  }
+
+  private def writeToGridFS(database: MongoDatabase,bucketName:String,fileName:String,filePath:String) = {
     val customFSBucket: GridFSBucket = GridFSBucket(database, bucketName)
-
     // Get the input stream
     val inputPath: Path = Paths.get(filePath + "/" + fileName)
 
@@ -39,7 +117,7 @@ case class AGDocuments(name: String, documentType:String) extends Documents {
     // Create some custom options
     val options: GridFSUploadOptions = new GridFSUploadOptions().metadata(Document("type" -> "Passport", "contactID" -> "1-22345"))
 
-    val trackMe = customFSBucket.uploadFromStream("Passport-FirstLastName", streamToUploadFrom, options)
+    val trackMe = customFSBucket.uploadFromStream(fileName, streamToUploadFrom, options)
 
     trackMe.subscribe(
       (x: ObjectId) => println("Done with: " + x),
@@ -47,7 +125,8 @@ case class AGDocuments(name: String, documentType:String) extends Documents {
     )
     Await.result(trackMe.toFuture(), 2.seconds)
     streamToUploadFrom.close()
-
   }
+
+
 
 }

@@ -13,6 +13,8 @@ import org.mongodb.scala.{Completed, Document, MongoClient, MongoCollection, Mon
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import org.mongodb.scala.bson.ObjectId
+
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -31,9 +33,9 @@ object Main {
       //latch.await()
       //mongoClient.close()
 
-      writeGridFS(database)
+      //writeGridFS(database)
 
-      //readGridFS(database)
+      readGridFS(database)
 
       val latch: CountDownLatch = new CountDownLatch(2)
       latch.await()
@@ -89,7 +91,7 @@ object Main {
     val customFSBucket: GridFSBucket = GridFSBucket(database, "DocStore")
 
     // Get the input stream
-    val inputPath: Path = Paths.get("/home/dev/temp/test.txt")
+    val inputPath: Path = Paths.get("/home/daviddo/test.txt")
 
     val fileToRead: AsynchronousFileChannel = AsynchronousFileChannel.open(inputPath, StandardOpenOption.READ)
     val streamToUploadFrom: AsyncInputStream = AsynchronousChannelHelper.channelToInputStream(fileToRead) // Using the AsynchronousChannelHelper
@@ -120,14 +122,16 @@ object Main {
 
     //val findResult = customFSBucket.find(Filters.equal("metadata.contactID", "1-22345"))
     //collection.find(and(gte("stars", 2), lt("stars", 5), eq("categories", "Bakery")))
-    val findResult = customFSBucket.find(org.mongodb.scala.model.Filters.and(Filters.equal("metadata.contactID", "1-22345"),
-      Filters.gte("length", 1)))
+    //val findResult = customFSBucket.find(org.mongodb.scala.model.Filters.and(Filters.equal("metadata.contactID", "1-22345"),
+    //  Filters.gte("length", 1)))
     //gte("lenght",1)))
 
     //val findResult = customFSBucket.find(Filters.equal("filename" , "/home/dev/temp/test.txt" ))
     //db.fs.files.find({"filename" : "/home/dev/temp/test.pdf" }
 
-    findResult.subscribe(
+    val findResult = customFSBucket.find(Filters.equal("_id" , new ObjectId("5960747451987a0d7c0d2e8d")))
+
+      findResult.subscribe(
       (files: GridFSFile) => {
         println("files found...")
         println(files.getFilename, " : " + files.getId + " : " + files.getMetadata + " : " + files.hashCode()) + " :  " + files.getObjectId
