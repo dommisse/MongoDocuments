@@ -9,9 +9,9 @@ import org.mongodb.scala.bson._
 import org.mongodb.scala.gridfs._
 import org.mongodb.scala.gridfs.helpers.AsynchronousChannelHelper
 import org.mongodb.scala.model.Filters
-import org.mongodb.scala.{Completed, Document, MongoClient, MongoCollection, MongoDatabase, Observable, Observer}
+import org.mongodb.scala.{Completed, Document, MongoClient, MongoCollection, MongoDatabase, Observable, Observer, WriteConcern}
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import org.mongodb.scala.bson.ObjectId
 
@@ -88,7 +88,7 @@ object Main {
   private def writeGridFS(database: MongoDatabase) = {
 
     // Create a gridFSBucket with a custom bucket name "files"
-    val customFSBucket: GridFSBucket = GridFSBucket(database, "DocStore")
+    val customFSBucket: GridFSBucket = GridFSBucket(database, "DocStore").withWriteConcern(WriteConcern.ACKNOWLEDGED)
 
     // Get the input stream
     val inputPath: Path = Paths.get("/home/daviddo/test.txt")
@@ -129,18 +129,23 @@ object Main {
     //val findResult = customFSBucket.find(Filters.equal("filename" , "/home/dev/temp/test.txt" ))
     //db.fs.files.find({"filename" : "/home/dev/temp/test.pdf" }
 
-    val findResult = customFSBucket.find(Filters.equal("_id" , new ObjectId("5960747451987a0d7c0d2e8d")))
+//    val findResult = customFSBucket.find(Filters.equal("_id" , new ObjectId("5960747451987a0d7c0d2e8d")))
+//
+//      findResult.subscribe(
+//      (files: GridFSFile) => {
+//        println("files found...")
+//        println(files.getFilename, " : " + files.getId + " : " + files.getMetadata + " : " + files.hashCode()) + " :  " + files.getObjectId
+//        //outputResults(files.getId,files.hashCode().toString)
+//      },
+//      (t: Throwable) => println("Failed with " + t.toString),
+//      () => println("Done reading")
+//    )
+//    Await.result(findResult.toFuture(), 2.seconds)
 
-      findResult.subscribe(
-      (files: GridFSFile) => {
-        println("files found...")
-        println(files.getFilename, " : " + files.getId + " : " + files.getMetadata + " : " + files.hashCode()) + " :  " + files.getObjectId
-        outputResults(files.getId,files.hashCode().toString)
-      },
-      (t: Throwable) => println("Failed with " + t.toString),
-      () => println("Done reading")
-    )
-    Await.result(findResult.toFuture(), 2.seconds)
+    val futureFiles: Future[Seq[GridFSFile]] = customFSBucket.find(Filters.equal("_id" , new ObjectId("5960747451987a0d7c0d2e8d"))).toFuture()
+
+    Await.result(futureFiles,2.seconds)
+    futureFiles.foreach((files:GridFSFile) => {outputResults(files.getId,files.getFilename)})
 
     def outputResults(fileId: BsonValue, hash: String): Unit = {
       val outputPath: Path = Paths.get("/home/dev/temp/mongodb-tutorial" + hash + ".jpg")

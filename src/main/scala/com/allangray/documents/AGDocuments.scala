@@ -33,34 +33,36 @@ case class AGDocuments(database:MongoDatabase) extends Documents {
     val customFSBucket: GridFSBucket = GridFSBucket(database, "DocStore")
 
     println("File names:")
-    //val docToFind = Document("id" -> "58cbb057fa58955608f97e3f")
-    //val findResult = customFSBucket.find(Filters.equal("_id", "58e3666ba045686607752b08"))
-    //val findResult = customFSBucket.find(Filters.equal("_id" , "58e3869af5f0396b876c1868" ))
-
 
     //val findResult = customFSBucket.find(Filters.equal("metadata.contactID", "1-22345"))
     //collection.find(and(gte("stars", 2), lt("stars", 5), eq("categories", "Bakery")))
-    val findResult = customFSBucket.find(org.mongodb.scala.model.Filters.and(Filters.equal("metadata.contactID", "1-22345"),
+    val findObservable = customFSBucket.find(org.mongodb.scala.model.Filters.and(Filters.equal("metadata.contactID", "1-22345"),
       Filters.gte("length", 1)))
-    //gte("lenght",1)))
 
-    //val findResult = customFSBucket.find(Filters.equal("filename" , "/home/dev/temp/test.txt" ))
-    //db.fs.files.find({"filename" : "/home/dev/temp/test.pdf" }
 
-    findResult.subscribe(
-      (files: GridFSFile) => {
-        println("files found...")
-        //println(files.getFilename, " : " + files.getId + " : " + files.getMetadata + " : " + files.hashCode()) + " :  " + files.getObjectId
-        buildMetaResults(files)
-      },
-      (t: Throwable) => println("Failed with " + t.toString),
-      () => println("Done reading")
-    )
-    Await.result(findResult.toFuture(), 2.seconds)
+     val filesData =  for {
+       findResult <- findObservable
+
+     } yield findResult
+
+
+//    findResult.subscribe(
+//      (files: GridFSFile) => {
+//        println("files found...")
+//        //println(files.getFilename, " : " + files.getId + " : " + files.getMetadata + " : " + files.hashCode()) + " :  " + files.getObjectId
+//        buildMetaResults(files)
+//      },
+//      (t: Throwable) => println("Failed with " + t.toString)
+//      //() => println("Done reading")
+//    )
+    Await.result(findObservable.toFuture(), 2.seconds)
+
 
     def buildMetaResults(files: GridFSFile):DocumentMetaData = {
       DocumentMetaData(files.getId,files.getFilename,files.getMetadata,(files.getUploadDate))
     }
+
+     buildMetaResults(findResult)
   }
 
    def getDocument(documentId: String) = {
