@@ -1,15 +1,13 @@
 package com.allangray.documents
 
+import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Path, Paths, StandardOpenOption}
 
-import com.mongodb.client.gridfs.model.GridFSUploadOptions
+import com.mongodb.async.client.gridfs.helpers.AsynchronousChannelHelper
 import org.mongodb.scala._
-import java.time.LocalDate
-
-import org.bson.BsonValue
 import org.mongodb.scala.bson.ObjectId
-import org.mongodb.scala.gridfs.helpers.AsynchronousChannelHelper
 import org.mongodb.scala.gridfs._
 import org.mongodb.scala.model.Filters
 
@@ -17,18 +15,20 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 
-case class ErrorResult(errCode: String, errReason : String)
+case class ErrorResult(errCode: String, errReason: String)
 
 trait Documents {
-  def saveDocument(fileName:String, filePath: String) : ErrorResult
-  //def searchDocuments(searchString: String) : Seq[DocumentMetaData]
-  //def getDocument(documentId: String) : Document
+  def saveDocument(fileName: String, filePath: String): ErrorResult
+
+  def searchDocuments(searchString: String): Seq[DocumentMetaData]
+
+  def getDocument(documentId: String): Byte
 }
 
-case class AGDocuments(database:MongoDatabase) extends Documents {
+case class AGDocuments(database: MongoDatabase) extends Documents {
   override def saveDocument(fileName: String, filePath: String): ErrorResult = ???
 
-   def searchDocuments(searchString: String) = {
+  def searchDocuments(searchString: String): Seq[DocumentMetaData] = {
 
     val customFSBucket: GridFSBucket = GridFSBucket(database, "DocStore")
 
@@ -39,76 +39,51 @@ case class AGDocuments(database:MongoDatabase) extends Documents {
     val findObservable = customFSBucket.find(org.mongodb.scala.model.Filters.and(Filters.equal("metadata.contactID", "1-22345"),
       Filters.gte("length", 1)))
 
+    var docList: List[DocumentMetaData] = Nil
 
-     val filesData =  for {
-       findResult <- findObservable
+    findObservable.subscribe(
+      (files: GridFSFile) => {
+        println("files found...")
+        //println(files.getFilename, " : " + files.getId + " : " + files.getMetadata + " : " + files.hashCode()) + " :  " + files.getObjectId
+        docList = buildMetaResults(files) :: docList
+      },
+      (t: Throwable) => println("Failed with " + t.toString)
 
-     } yield findResult
-
-
-//    findResult.subscribe(
-//      (files: GridFSFile) => {
-//        println("files found...")
-//        //println(files.getFilename, " : " + files.getId + " : " + files.getMetadata + " : " + files.hashCode()) + " :  " + files.getObjectId
-//        buildMetaResults(files)
-//      },
-//      (t: Throwable) => println("Failed with " + t.toString)
-//      //() => println("Done reading")
-//    )
-    Await.result(findObservable.toFuture(), 2.seconds)
+    )
+    Await.result(findObservable.toFuture(), 4.seconds)
 
 
-    def buildMetaResults(files: GridFSFile):DocumentMetaData = {
-      DocumentMetaData(files.getId,files.getFilename,files.getMetadata,(files.getUploadDate))
+    def buildMetaResults(files: GridFSFile): DocumentMetaData = {
+      DocumentMetaData(files.getId, files.getFilename, files.getMetadata, (files.getUploadDate))
     }
 
-     buildMetaResults(findResult)
+    docList
+
   }
 
-   def getDocument(documentId: String) = {
+  def getDocumentBytes(documentId: String):Byte = {
 
     val customFSBucket: GridFSBucket = GridFSBucket(database, "DocStore")
 
-     val findResult = customFSBucket.find(Filters.equal("_id" , new ObjectId(documentId)))
+    val dstByteBuffer: ByteBuffer = ByteBuffer.allocate(1024 * 1024)
 
-    findResult.subscribe(
-      (files: GridFSFile) => {
-        println("files found...")
-        println(files.getFilename, " : " + files.getId + " : " + files.getMetadata + " : " + files.hashCode()) + " :  " + files.getObjectId
-        outputResults(files.getId,files.hashCode().toString)
-      },
-      (t: Throwable) => println("Failed with " + t.toString),
-      () => println("Done reading")
-    )
-    Await.result(findResult.toFuture(), 2.seconds)
-
-    def outputResults(fileId: BsonValue, hash: String): Unit = {
-      val outputPath: Path = Paths.get("/home/dev/temp/mongodb-tutorial" + hash + ".jpg")
+    val downloadStream: GridFSDownloadStream = customFSBucket.openDownloadStream(new ObjectId("5964b7ca229d6d432fa5d1e3"))
+    //val downloadStream: GridFSDownloadStream = customFSBucket.openDownloadStream(new ObjectId("5964c558229d6d47e044cbd3"))
 
 
-      var streamToDownloadTo: AsynchronousFileChannel = AsynchronousFileChannel.open(outputPath,
-        StandardOpenOption.CREATE,
-        StandardOpenOption.WRITE
-        //,StandardOpenOption.DELETE_ON_CLOSE
-      )
-
-      val trackMe = customFSBucket.downloadToStream(fileId, AsynchronousChannelHelper.channelToOutputStream(streamToDownloadTo))
-
-      trackMe.subscribe(
-        (x: Long) => println("OnNext: " + x),
-        (t: Throwable) => println("Failed: " + t.toString),
-        () => {
-          println("Complete")
-          streamToDownloadTo.close()
-        }
-      )
-
-      Await.result(trackMe.toFuture(), 2.seconds)
-
-    }
+val futureBytes =
+    downloadStream.read(dstByteBuffer).map(result => {
+      dstByteBuffer.flip
+      val bytes: Array[Byte] = new Array[Byte](result)
+      dstByteBuffer.get(bytes)
+      //println(new String(bytes, StandardCharsets.UTF_8))
+    }).head()
+    val byteResult = Await.result(futureBytes,2.seconds)
+    byteResult.get()
   }
 
-  private def writeToGridFS(database: MongoDatabase,bucketName:String,fileName:String,filePath:String) = {
+
+  private def writeToGridFS(database: MongoDatabase, bucketName: String, fileName: String, filePath: String) = {
     val customFSBucket: GridFSBucket = GridFSBucket(database, bucketName)
     // Get the input stream
     val inputPath: Path = Paths.get(filePath + "/" + fileName)
@@ -128,7 +103,6 @@ case class AGDocuments(database:MongoDatabase) extends Documents {
     Await.result(trackMe.toFuture(), 2.seconds)
     streamToUploadFrom.close()
   }
-
 
 
 }

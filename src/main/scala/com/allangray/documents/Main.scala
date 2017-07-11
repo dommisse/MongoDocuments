@@ -1,19 +1,19 @@
 package com.allangray.documents
 
 
+import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Path, Paths, StandardOpenOption}
 import java.util.concurrent.CountDownLatch
 
-import org.mongodb.scala.bson._
+import org.mongodb.scala.bson.ObjectId
 import org.mongodb.scala.gridfs._
 import org.mongodb.scala.gridfs.helpers.AsynchronousChannelHelper
-import org.mongodb.scala.model.Filters
 import org.mongodb.scala.{Completed, Document, MongoClient, MongoCollection, MongoDatabase, Observable, Observer, WriteConcern}
 
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Await
 import scala.concurrent.duration._
-import org.mongodb.scala.bson.ObjectId
 
 
 object Main {
@@ -37,8 +37,14 @@ object Main {
 
       readGridFS(database)
 
-      val latch: CountDownLatch = new CountDownLatch(2)
-      latch.await()
+//      val latch: CountDownLatch = new CountDownLatch(2)
+//      latch.await()
+
+      //AGDocument
+//      val testDocs = AGDocuments(database).searchDocuments("dfsfds")
+//      testDocs.map(f=> println(f.fileName + " " + f.metaData.toString))
+      //
+
 
       mongoClient.close()
 
@@ -67,7 +73,6 @@ object Main {
     println("Lets Read")
 
 
-
     val observable = collection.find()
 
     observable.subscribe(
@@ -91,7 +96,8 @@ object Main {
     val customFSBucket: GridFSBucket = GridFSBucket(database, "DocStore").withWriteConcern(WriteConcern.ACKNOWLEDGED)
 
     // Get the input stream
-    val inputPath: Path = Paths.get("/home/daviddo/test.txt")
+    val inputPath: Path = Paths.get("/home/dev/temp/temp.jpg")
+    //val inputPath: Path = Paths.get("/home/dev/temp/temp.txt")
 
     val fileToRead: AsynchronousFileChannel = AsynchronousFileChannel.open(inputPath, StandardOpenOption.READ)
     val streamToUploadFrom: AsyncInputStream = AsynchronousChannelHelper.channelToInputStream(fileToRead) // Using the AsynchronousChannelHelper
@@ -110,70 +116,25 @@ object Main {
 
   }
 
-  private def readGridFS(database: MongoDatabase) = {
+  private def readGridFS(database: MongoDatabase): Unit = {
 
     val customFSBucket: GridFSBucket = GridFSBucket(database, "DocStore")
+    val dstByteBuffer: ByteBuffer = ByteBuffer.allocate(1024 * 1024)
 
-    println("File names:")
-    //val docToFind = Document("id" -> "58cbb057fa58955608f97e3f")
-    //val findResult = customFSBucket.find(Filters.equal("_id", "58e3666ba045686607752b08"))
-    //val findResult = customFSBucket.find(Filters.equal("_id" , "58e3869af5f0396b876c1868" ))
-
-
-    //val findResult = customFSBucket.find(Filters.equal("metadata.contactID", "1-22345"))
-    //collection.find(and(gte("stars", 2), lt("stars", 5), eq("categories", "Bakery")))
-    //val findResult = customFSBucket.find(org.mongodb.scala.model.Filters.and(Filters.equal("metadata.contactID", "1-22345"),
-    //  Filters.gte("length", 1)))
-    //gte("lenght",1)))
-
-    //val findResult = customFSBucket.find(Filters.equal("filename" , "/home/dev/temp/test.txt" ))
-    //db.fs.files.find({"filename" : "/home/dev/temp/test.pdf" }
-
-//    val findResult = customFSBucket.find(Filters.equal("_id" , new ObjectId("5960747451987a0d7c0d2e8d")))
-//
-//      findResult.subscribe(
-//      (files: GridFSFile) => {
-//        println("files found...")
-//        println(files.getFilename, " : " + files.getId + " : " + files.getMetadata + " : " + files.hashCode()) + " :  " + files.getObjectId
-//        //outputResults(files.getId,files.hashCode().toString)
-//      },
-//      (t: Throwable) => println("Failed with " + t.toString),
-//      () => println("Done reading")
-//    )
-//    Await.result(findResult.toFuture(), 2.seconds)
-
-    val futureFiles: Future[Seq[GridFSFile]] = customFSBucket.find(Filters.equal("_id" , new ObjectId("5960747451987a0d7c0d2e8d"))).toFuture()
-
-    Await.result(futureFiles,2.seconds)
-    futureFiles.foreach((files:GridFSFile) => {outputResults(files.getId,files.getFilename)})
-
-    def outputResults(fileId: BsonValue, hash: String): Unit = {
-      val outputPath: Path = Paths.get("/home/dev/temp/mongodb-tutorial" + hash + ".jpg")
+    val downloadStream: GridFSDownloadStream = customFSBucket.openDownloadStream(new ObjectId("5964b7ca229d6d432fa5d1e3"))
+    //val downloadStream: GridFSDownloadStream = customFSBucket.openDownloadStream(new ObjectId("5964c558229d6d47e044cbd3"))
 
 
-      var streamToDownloadTo: AsynchronousFileChannel = AsynchronousFileChannel.open(outputPath,
-        StandardOpenOption.CREATE,
-        StandardOpenOption.WRITE
-        //,StandardOpenOption.DELETE_ON_CLOSE
-      )
+    val test = downloadStream.read(dstByteBuffer).map(result => {
+      dstByteBuffer.flip
+      val bytes: Array[Byte] = new Array[Byte](result)
+      dstByteBuffer.get(bytes)
+      println(new String(bytes, StandardCharsets.UTF_8))
+    }).toFuture()
+    Await.result(test,2.seconds)
 
-      val trackMe = customFSBucket.downloadToStream(fileId, AsynchronousChannelHelper.channelToOutputStream(streamToDownloadTo))
-
-      trackMe.subscribe(
-        (x: Long) => println("OnNext: " + x),
-        (t: Throwable) => println("Failed: " + t.toString),
-        () => {
-          println("Complete")
-          streamToDownloadTo.close()
-        }
-      )
-
-      Await.result(trackMe.toFuture(), 2.seconds)
-
-
-    }
+    //.head()
 
   }
-
 
 }
