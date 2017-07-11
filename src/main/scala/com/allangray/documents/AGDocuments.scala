@@ -19,13 +19,12 @@ case class ErrorResult(errCode: String, errReason: String)
 
 trait Documents {
   def saveDocument(fileName: String, filePath: String): ErrorResult
-
   def searchDocuments(searchString: String): Seq[DocumentMetaData]
-
   def getDocument(documentId: String): Byte
 }
 
 case class AGDocuments(database: MongoDatabase) extends Documents {
+
   override def saveDocument(fileName: String, filePath: String): ErrorResult = ???
 
   def searchDocuments(searchString: String): Seq[DocumentMetaData] = {
@@ -61,7 +60,7 @@ case class AGDocuments(database: MongoDatabase) extends Documents {
 
   }
 
-  def getDocumentBytes(documentId: String):Byte = {
+  def getDocument(documentId: String):Byte = {
 
     val customFSBucket: GridFSBucket = GridFSBucket(database, "DocStore")
 

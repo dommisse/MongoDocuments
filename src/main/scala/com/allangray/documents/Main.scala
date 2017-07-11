@@ -25,8 +25,8 @@ object Main {
       val collection: MongoCollection[Document] = database.getCollection("movies")
 
       // insert a document
-      val document: Document = Document("_id" -> 2, "x" -> 4)
-      val doc2: Document = Document("_id" -> 4, "firstName" -> "Rory", "lastName" -> "Bolus")
+
+      //val doc2: Document = Document("_id" -> 4, "firstName" -> "Rory", "lastName" -> "Bolus")
       //writeSomething(collection, doc2)
       //readRecords(collection, Some(document))
       //val latch: CountDownLatch = new CountDownLatch(1)
@@ -34,15 +34,14 @@ object Main {
       //mongoClient.close()
 
       //writeGridFS(database)
-
-      readGridFS(database)
+      //readGridFS(database)
 
 //      val latch: CountDownLatch = new CountDownLatch(2)
 //      latch.await()
 
       //AGDocument
-//      val testDocs = AGDocuments(database).searchDocuments("dfsfds")
-//      testDocs.map(f=> println(f.fileName + " " + f.metaData.toString))
+      val testDocs = AGDocuments(database).searchDocuments("dfsfds")
+      testDocs.map(f=> println(f.fileName + " created on " + f.createdDate + " with metadata:" + f.metaData.toString))
       //
 
 
